@@ -12,12 +12,34 @@ from django.urls import reverse_lazy
 from .forms import ChangeUserInfoForm
 from .models import AdvUser
 from django.contrib.auth.views import PasswordChangeView
-from django.views.generic import UpdateView
-from django.views.generic import CreateView
+from django.views.generic import UpdateView, CreateView, DeleteView
 from .forms import RegisterUserForm
 from django.views.generic.base import TemplateView
 from django.core.signing import BadSignature
 from .utilities import signer
+from django.contrib.auth import logout
+from django.contrib import messages
+
+
+class DeleteUserView(LoginRequiredMixin, DeleteView):
+    model = AdvUser
+    template_name = 'main/delete_user.html'
+    success_url = reverse_lazy('main:profile')
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user_id = request.user.pk
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logout(request)
+        messages.add_message(request, messages.SUCCESS, 'Пользователь удалён')
+        return super().post(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        if not queryset:
+            queryset = self.get_queryset()
+        return get_object_or_404(queryset, pk=self.user_id)
+
 
 def user_activate(request, sign):
     try:
@@ -34,8 +56,10 @@ def user_activate(request, sign):
         user.save()
     return render(request, template)
 
+
 class RegisterDoneView(TemplateView):
     template_name = 'main/register_done.html'
+
 
 class RegisterUserView(CreateView):
     model = AdvUser
@@ -43,10 +67,12 @@ class RegisterUserView(CreateView):
     form_class = RegisterUserForm
     success_url = reverse_lazy('main:register_done')
 
+
 class BBPasswordChangeView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeView):
     template_name = 'main/password_change.html'
     success_url = reverse_lazy('main:profile')
     success_message = 'Пароль пользователя изменен'
+
 
 class ChangeUserInfoView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     model = AdvUser
@@ -64,22 +90,27 @@ class ChangeUserInfoView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
             queryset = self.get_queryset()
         return get_object_or_404(queryset, pk=self.user_id)
 
+
 class BBLogoutView(LoginRequiredMixin, LogoutView):
     template_name = 'main/logout.html'
+
+
+class BBLoginView(LoginView):
+    template_name = 'main/login.html'
+
 
 @login_required
 def profile(request):
     return render(request, 'main/profile.html')
 
-class BBLoginView(LoginView):
-    template_name = 'main/login.html'
 
-def other_page(request,page):
+def other_page(request, page):
     try:
         template = get_template('main/' + page + '.html')
     except TemplateDoesNotExist:
         raise Http404
     return HttpResponse(template.render(request=request))
+
 
 def index(request):
     return render(request, 'main/index.html')

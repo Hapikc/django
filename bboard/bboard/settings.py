@@ -18,7 +18,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-AUTH_USER_MODEL ='main.AdvUser'
+AUTH_USER_MODEL = 'main.AdvUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -104,10 +104,11 @@ USE_I18N = True
 USE_TZ = True
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_HOST_USER = 'Konstantin4ern0v@yandex.ru'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = '136709525532hs@gmail.com'
 EMAIL_HOST_PASSWORD = 'ASD123bcQ'
 EMAIL_PORT = 587
+DEFAULT_EMAIL_FROM = '136709525532hs@gmail.com'
 
 
 # Static files (CSS, JavaScript, Images)
