@@ -2,6 +2,27 @@ from django.contrib import admin
 import datetime
 from .models import AdvUser
 from .utilities import send_activation_notification
+from .models import SuperRubric, SubRubric
+from .forms import SubRubricForm
+from .models import Bb, AdditionalImage
+
+class AdditionalImageInline(admin.TabularInline):
+    model = AdditionalImage
+
+class BbAdmin(admin.ModelAdmin):
+    list_display = ('rubric', 'title', 'content', 'author', 'created_at')
+    fields = (('rubric', 'author'), 'title', 'content', 'price', 'contacts', 'image', 'is_active')
+    inlines = (AdditionalImageInline,)
+
+class SubRubricAdmin(admin.ModelAdmin):
+    form = SubRubricForm
+
+class SubRubricInline(admin.TabularInline):
+    model = SubRubric
+
+class SuperRubricAdmin(admin.ModelAdmin):
+    exclude = ('super_rubric',)
+    inlines = (SubRubricInline,)
 
 def send_activation_notifications(modeladmin, request, queryset):
     for rec in queryset:
@@ -54,4 +75,6 @@ class AdvUserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AdvUser, AdvUserAdmin)
-
+admin.site.register(SuperRubric, SuperRubricAdmin)
+admin.site.register(SubRubric, SubRubricAdmin)
+admin.site.register(Bb, BbAdmin)
